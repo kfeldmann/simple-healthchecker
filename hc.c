@@ -9,7 +9,6 @@
 
 #define HOSTLEN 256
 #define PATHLEN 256
-/* #define IPADDRLEN 16 */
 #define PORTLEN 8
 
 void error(const char *msg) { perror(msg); exit(1); }
@@ -34,42 +33,42 @@ int main(int argc, char *argv[])
 
     if (strlen(argv[1]) > HOSTLEN)
     {
-        error("ERROR the provided 'server' string is too long");
+        error("ERROR: The provided 'server' string is too long");
     }
     strcpy(ipaddr, argv[1]);
 
     if (strlen(argv[3]) > HOSTLEN)
     {
-        error("ERROR the provided 'host-header' string is too long");
+        error("ERROR: The provided 'host-header' string is too long");
     }
 
     if (strlen(argv[4]) > PATHLEN)
     {
-        error("ERROR the provided 'path' string is too long");
+        error("ERROR: The provided 'path' string is too long");
     }
 
     if (strlen(argv[2]) > PORTLEN)
     {
-        error("ERROR the provided 'port' string is too long");
+        error("ERROR: The provided 'port' string is too long");
     }
     errno = 0;
     portno = strtol(argv[2], &tail, 0);
     if (errno)
     {
-        error("ERROR parsing port number");
+        error("ERROR: Failed to parse port number");
     }
 
     /* fill in the request parameters */
     sprintf(message, message_fmt, argv[4], argv[3]);
-    /* printf("Request:\n%s\n", message); */
+    /* printf("DEBUG: Request:\n%s\n", message); */
 
     /* create the socket */
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockfd < 0) error("ERROR opening socket");
+    if (sockfd < 0) error("ERROR: Failed to open socket");
 
     /* lookup the server address*/
     server = gethostbyname(ipaddr);
-    if (server == NULL) error("ERROR, no such host");
+    if (server == NULL) error("ERROR: No such host");
 
     /* fill in the structure */
     memset(&serv_addr, 0, sizeof(serv_addr));
@@ -79,7 +78,7 @@ int main(int argc, char *argv[])
 
     /* connect the socket */
     if (connect(sockfd,(struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
-        error("ERROR connecting");
+        error("ERROR: Failed to make socket connection");
 
     /* send the request */
     total = strlen(message);
@@ -87,7 +86,7 @@ int main(int argc, char *argv[])
     do {
         bytes = write(sockfd, message+sent, total-sent);
         if (bytes < 0)
-            error("ERROR writing message to socket");
+            error("ERROR: Failed to write message to socket");
         if (bytes == 0)
             break;
         sent += bytes;
@@ -100,7 +99,7 @@ int main(int argc, char *argv[])
     do {
         bytes = read(sockfd, response+received, total-received);
         if (bytes < 0)
-            error("ERROR reading response from socket");
+            error("ERROR: Failed to read response from socket");
         if (bytes == 0)
             break;
         received+=bytes;
@@ -115,7 +114,7 @@ int main(int argc, char *argv[])
     close(sockfd);
 
     /* process response */
-    printf("[simple-healthchecker] DEBUG: Response:\n%s\n", response);
+    /* printf("DEBUG: Response:\n%s\n", response); */
 
     return 0;
 }
