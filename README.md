@@ -1,6 +1,6 @@
 # Simple Healthchecker
 
-**This is just getting started. It is not actually useful yet.**
+_**This is just getting started. It is not actually useful yet!**_
 
 The goal is to provide a minimal, lightweight http client to use for
 healthchecking of applications inside Docker containers. To be
