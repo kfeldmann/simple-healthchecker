@@ -9,17 +9,17 @@
 
 #define HOSTLEN 256
 #define PATHLEN 256
-#define IPADDRLEN 16
+/* #define IPADDRLEN 16 */
+#define PORTLEN 8
 
 void error(const char *msg) { perror(msg); exit(1); }
 
 int main(int argc, char *argv[])
 {
-    /* first what are we going to send and where are we going to send it? */
     long portno = 80;
-    char ipaddr[IPADDRLEN];
+    char ipaddr[HOSTLEN];
     char *tail;
-    char *message_fmt = "GET %s HTTP/1.0\r\nHost: %s\r\n\r\n";
+    char *message_fmt = "GET %s HTTP/1.1\r\nHost: %s\r\nUser-Agent: simple-healthchecker\r\nConnection: close\r\n\r\n";
 
     struct hostent *server;
     struct sockaddr_in serv_addr;
@@ -32,25 +32,25 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    if (strlen(argv[1]) > IPADDRLEN)
+    if (strlen(argv[1]) > HOSTLEN)
     {
-        error("ERROR the provided IP address string is too long");
+        error("ERROR the provided 'server' string is too long");
     }
     strcpy(ipaddr, argv[1]);
 
     if (strlen(argv[3]) > HOSTLEN)
     {
-        error("ERROR the provided hostname string is too long");
+        error("ERROR the provided 'host-header' string is too long");
     }
 
     if (strlen(argv[4]) > PATHLEN)
     {
-        error("ERROR the provided path string is too long");
+        error("ERROR the provided 'path' string is too long");
     }
 
     if (strlen(argv[2]) > IPADDRLEN)
     {
-        error("ERROR the provided port string is too long");
+        error("ERROR the provided 'port' string is too long");
     }
     errno = 0;
     portno = strtol(argv[2], &tail, 0);
@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) error("ERROR opening socket");
 
-    /* lookup the ip address */
+    /* lookup the server address*/
     server = gethostbyname(ipaddr);
     if (server == NULL) error("ERROR, no such host");
 
@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
     close(sockfd);
 
     /* process response */
-    printf("Response:\n%s\n", response);
+    printf("[simple-healthchecker] DEBUG: Response:\n%s\n", response);
 
     return 0;
 }
