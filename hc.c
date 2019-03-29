@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
         error("ERROR the provided 'path' string is too long");
     }
 
-    if (strlen(argv[2]) > IPADDRLEN)
+    if (strlen(argv[2]) > PORTLEN)
     {
         error("ERROR the provided 'port' string is too long");
     }
