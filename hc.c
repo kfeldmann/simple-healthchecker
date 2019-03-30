@@ -1,7 +1,7 @@
 #include <stdio.h> /* printf, sprintf */
 #include <stdlib.h> /* exit */
 #include <unistd.h> /* read, write, close */
-#include <string.h> /* memcpy, memset */
+#include <string.h> /* memcpy, memset, strchr */
 #include <sys/socket.h> /* socket, connect, AF_INET */
 #include <netinet/in.h> /* struct sockaddr_in, struct sockaddr */
 #include <netdb.h> /* struct hostent, gethostbyname */
@@ -18,6 +18,7 @@ int main(int argc, char *argv[])
     long portno = 80;
     char ipaddr[HOSTLEN];
     char *tail;
+    char status[4];
     char *message_fmt = "GET %s HTTP/1.1\r\nHost: %s\r\nUser-Agent: simple-healthchecker\r\nConnection: close\r\n\r\n";
 
     struct hostent *server;
@@ -105,16 +106,19 @@ int main(int argc, char *argv[])
         received+=bytes;
     } while (received < total);
 
-    /*
-    if (received == total)
-        error("ERROR storing complete response from socket");
-    */
-
     /* close the socket */
     close(sockfd);
 
     /* process response */
+    strncpy(status, strchr(response, ' ') + 1, 3);
+    status[3] = '\0';
+    /* printf("DEBUG: status = %s\n", status); */
     /* printf("DEBUG: Response:\n%s\n", response); */
+    if (strncmp("2", status, 1) != 0)
+    {
+        printf("ERROR: Received unhealthy status code: %s\n", status);
+        exit(1);
+    }
 
     return 0;
 }
