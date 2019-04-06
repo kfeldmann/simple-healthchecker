@@ -23,5 +23,5 @@ Where:
 Dockerfile Example:
 ```
 HEALTHCHECK --interval=30s --timeout=3s \
-  CMD /sbin/hc localhost 8080 api.mysite.dom /
+  CMD ["/sbin/hc", "localhost", "8080", "api.mysite.dom", "/"]
 ```
